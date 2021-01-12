@@ -17,7 +17,6 @@ class IndexWhiteNoise(WhiteNoise):
     def __call__(self, environ, start_response):
         """Call api or whitenoise"""
         path = decode_path_info(environ.get("PATH_INFO", ""))
-        print('serving path', path)
         if path.startswith('/api'):
             return self.application(environ, start_response)
 
