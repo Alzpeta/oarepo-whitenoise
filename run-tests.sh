@@ -7,6 +7,6 @@
 # it under the terms of the MIT License; see LICENSE file for more details.
 
 pydocstyle oarepo_whitenoise tests && \
-isort -rc . && \
+isort -c oarepo_whitenoise && \
 check-manifest --ignore ".travis-*" && \
 pytest
