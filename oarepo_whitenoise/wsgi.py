@@ -1,3 +1,5 @@
+"""WhiteNoise bridge to flask app."""
+
 import os
 
 from oarepo_micro_api.wsgi import application as application
@@ -10,17 +12,10 @@ assert os.path.exists(static_folder)
 
 
 class IndexWhiteNoise(WhiteNoise):
-
-    def find_file(self, url):
-        print('Looking for url', url)
-        if url.startswith('/api'):
-            return None
-        ret = super(IndexWhiteNoise, self).find_file(url)
-        if not ret:
-            ret = super(IndexWhiteNoise, self).find_file('/index.html')
-        return ret
+    """Modified whitenoise to serve index.html for any not-found url apart from api"""
 
     def __call__(self, environ, start_response):
+        """Call api or whitenoise"""
         path = decode_path_info(environ.get("PATH_INFO", ""))
         print('serving path', path)
         if path.startswith('/api'):
@@ -37,5 +32,6 @@ class IndexWhiteNoise(WhiteNoise):
                 static_file = self.files.get('/index.html')
 
         return self.serve(static_file, environ, start_response)
+
 
 application.wsgi_app = IndexWhiteNoise(application.wsgi_app, root=static_folder)
