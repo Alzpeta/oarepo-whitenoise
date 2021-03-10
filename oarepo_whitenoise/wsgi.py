@@ -17,20 +17,21 @@ class IndexWhiteNoise(WhiteNoise):
     def __call__(self, environ, start_response):
         """Call api or whitenoise"""
         path = decode_path_info(environ.get("PATH_INFO", ""))
-        if path.startswith('/api'):
-            return self.application(environ, start_response)
 
-        if self.autorefresh:
-            static_file = self.find_file(path)
-        else:
-            static_file = self.files.get(path)
-        if static_file is None:
+        if 'html' in environ.get('HTTP_ACCEPT', ''):
             if self.autorefresh:
-                static_file = self.find_file('/index.html')
+                static_file = self.find_file(path)
             else:
-                static_file = self.files.get('/index.html')
+                static_file = self.files.get(path)
+            if static_file is None:
+                if self.autorefresh:
+                    static_file = self.find_file('/index.html')
+                else:
+                    static_file = self.files.get('/index.html')
 
-        return self.serve(static_file, environ, start_response)
+            return self.serve(static_file, environ, start_response)
+
+        return self.application(environ, start_response)
 
 
 application.wsgi_app = IndexWhiteNoise(application.wsgi_app, root=static_folder)
