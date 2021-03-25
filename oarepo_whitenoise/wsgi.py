@@ -23,18 +23,19 @@ class IndexWhiteNoise(WhiteNoise):
         """Call api or whitenoise"""
         path = decode_path_info(environ.get("PATH_INFO", ""))
 
-        if 'html' in environ.get('HTTP_ACCEPT', '') and not any([path.startswith(r) for r in API_ROUTES]):
+        if not any([path.startswith(r) for r in API_ROUTES]):
             if self.autorefresh:
                 static_file = self.find_file(path)
             else:
                 static_file = self.files.get(path)
-            if static_file is None:
+
+            if static_file is None and 'html' in environ.get('HTTP_ACCEPT', ''):
                 if self.autorefresh:
                     static_file = self.find_file('/index.html')
                 else:
                     static_file = self.files.get('/index.html')
-
-            return self.serve(static_file, environ, start_response)
+            if static_file:
+                return self.serve(static_file, environ, start_response)
 
         return self.application(environ, start_response)
 
