@@ -29,7 +29,9 @@ class IndexWhiteNoise(WhiteNoise):
             else:
                 static_file = self.files.get(path)
 
-            if static_file is None and 'html' in environ.get('HTTP_ACCEPT', ''):
+            accept = environ.get('HTTP_ACCEPT', '')
+            query = environ.get('QUERY_STRING', '')
+            if static_file is None and 'html' in accept and not query == 'download':
                 if self.autorefresh:
                     static_file = self.find_file('/index.html')
                 else:
