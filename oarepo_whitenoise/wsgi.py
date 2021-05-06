@@ -41,5 +41,21 @@ class IndexWhiteNoise(WhiteNoise):
 
         return self.application(environ, start_response)
 
+    def add_cache_headers(self, headers, path, url):
+        """Adds no-store cache header to urls with mutable content."""
+        if self.immutable_file_test(path, url):
+            headers["Cache-Control"] = "max-age={0}, public, immutable".format(
+                self.FOREVER
+            )
+        elif self.max_age is not None:
+            headers["Cache-Control"] = "no-store"
+
+    def immutable_file_test(self, path, url):
+        """Returns Vue static asset urls as immutable."""
+        return url.startswith('/js/') or \
+            url.startswith('/css/') or \
+            url.startswith('/img/') or \
+            url.startswith('/fonts/')
+
 
 application.wsgi_app = IndexWhiteNoise(application.wsgi_app, root=static_folder)
